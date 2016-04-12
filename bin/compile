@@ -81,14 +81,11 @@ fi
 #
 echo "-----> Bundling bundle"
 cd $APP_SOURCE_DIR
-<<<<<<< HEAD
-=======
 
 # If we use npm on root, run npm install.
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   npm install
 fi
->>>>>>> AdmitHub/master
 
 # Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR, or it will
 # recurse, trying to bundle up its own bundling.
