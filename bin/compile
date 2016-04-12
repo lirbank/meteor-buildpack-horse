@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Meteor Heroku buildpack for Meteor 0.9.3+.
+# Meteor Heroku buildpack for Meteor
 
 # fail fast.
 set -e
@@ -40,12 +40,14 @@ METEOR_DIR=`mktemp -d "$BUILDPACK_DIR"/meteor-XXXX`
 # Where we'll put things we compile.
 COMPILE_DIR_SUFFIX=".meteor/heroku_build"
 COMPILE_DIR="$APP_CHECKOUT_DIR"/"$COMPILE_DIR_SUFFIX"
+# Try to minimize meteor's printing
+METEOR_PRETTY_OUTPUT=0
 
 # Create directories as needed.
 mkdir -p "$APP_CHECKOUT_DIR" "$METEOR_DIR" "$COMPILE_DIR"
 
 # Update the path so we get npm, etc.
-PATH="$COMPILE_DIR/bin:$PATH"
+PATH="$METEOR_DIR/.meteor:$COMPILE_DIR/bin:$PATH"
 
 #
 # Install node
@@ -66,21 +68,38 @@ echo "-----> Installing meteor"
 curl -sS https://install.meteor.com | HOME="$METEOR_DIR" /bin/sh
 METEOR="$METEOR_DIR/.meteor/meteor" # The meteor binary.
 
+# Maybe update release. Upgrade only if needed because it's slow.
+CUR_RELEASE=`HOME=$METEOR_DIR $METEOR --version | sed -e 's/Meteor /METEOR@/'`
+APP_RELEASE=`cat "$APP_SOURCE_DIR/.meteor/release"`
+if test "$CUR_RELEASE" != "$APP_RELEASE" ; then
+  echo "-----> Upgrading meteor to $APP_RELEASE"
+  HOME=$METEOR_DIR $METEOR update --release $APP_RELEASE
+fi
+
 #
 # Build the meteor app!
 #
 echo "-----> Bundling bundle"
 cd $APP_SOURCE_DIR
+<<<<<<< HEAD
+=======
+
+# If we use npm on root, run npm install.
+if [ -e "$APP_SOURCE_DIR"/package.json ]; then
+  npm install
+fi
+>>>>>>> AdmitHub/master
 
 # Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR, or it will
 # recurse, trying to bundle up its own bundling.
 BUNDLE_DEST=`mktemp -d "$BUILDPACK_DIR/build-XXXX"`
-# <hack issue='https://github.com/meteor/meteor/issues/2867'>
-# Temporary hack to address meteor failing to bundle if mobile targets are
-# included but server URL is not (issue #2).  Remove mobile targets. This
-# should be no-op for any builds that don't have mobile targets.
-HOME=$METEOR_DIR $METEOR remove-platform ios android
-# </hack>
+
+# Remove the Android platform because it fails due to the Android tools not
+# being installed, but leave the iOS platform because it's ignored.
+# If we remove both platforms the mobile hot code push will not work.
+# TODO: this means mobile HCP is broken for android-only apps, we need a
+# better solution
+HOME=$METEOR_DIR $METEOR remove-platform android || true
 
 # <hack issue="https://github.com/meteor/meteor/issues/2796>
 # the root cause seems to be related to https://github.com/meteor/meteor/issues/2606
@@ -93,7 +112,8 @@ echo "-----> Pre-launching Meteor to create packages assets and prevent bundling
 fi
 # </hack>
 
-HOME=$METEOR_DIR $METEOR build --directory $BUNDLE_DEST
+echo "-----> Building Meteor with ROOT_URL: $ROOT_URL"
+HOME=$METEOR_DIR $METEOR build --server $ROOT_URL --directory $BUNDLE_DEST
 mv $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
 rmdir $BUNDLE_DEST
 
