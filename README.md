@@ -1,3 +1,5 @@
+*NOTE: This fork ([lirbank/meteor-buildpack-horse](https://github.com/lirbank/meteor-buildpack-horse/edit/master/README.md)) is exactly [the same](https://github.com/AdmitHub/meteor-buildpack-horse/compare/master...lirbank:master) as it's upstream version, except all the extras scripts have been removed.*
+
 # Meteor Buildpack Horse
 
 [![Horse](https://i.imgur.com/YhIL9zM.jpg)](https://commons.wikimedia.org/wiki/File:Draw-Costa_Rican-2smallest.jpg)
