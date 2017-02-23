@@ -56,9 +56,9 @@ fi
 
 # Try "$APP_SOURCE_DIR/app/" if meteor app isn't there (the "Iron scaffolding
 # tool" default).
-if [ ! -d "$APP_SOURCE_DIR/.meteor" ] && [ -d "$APP_SOURCE_DIR/app/.meteor" ]; then
-  APP_SOURCE_DIR="$APP_SOURCE_DIR/app/"
-fi
+# if [ ! -d "$APP_SOURCE_DIR/.meteor" ] && [ -d "$APP_SOURCE_DIR/app/.meteor" ]; then
+#   APP_SOURCE_DIR="$APP_SOURCE_DIR/app/"
+# fi
 if [ ! -d "$APP_SOURCE_DIR/.meteor" ]; then
   echo "FATAL: Can't find meteor app. Set METEOR_APP_DIR to the relative location of the meteor app within your repository if it's not in the root or 'app/' subdirectory.  (Tried ${APP_SOURCE_DIR})"
   exit 1
@@ -174,7 +174,7 @@ if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   $METEOR_NPM install
 fi
 
-# Related to https://github.com/meteor/meteor/issues/2796 and 
+# Related to https://github.com/meteor/meteor/issues/2796 and
 # https://github.com/meteor/meteor/issues/2606.  Some packages only build their
 # assets at runtime, and thus they are not available for bundling unless meteor
 # has been launched.  To opt-in to this, set BUILDPACK_PRELAUNCH_METEOR=1.
